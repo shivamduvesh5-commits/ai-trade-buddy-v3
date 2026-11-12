@@ -1,0 +1,21 @@
+
+{
+  "id": "./",
+  "name": "AI Trade Buddy",
+  "short_name": "Trade Buddy",
+  "description": "AI-powered trading analysis and market scanner",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080d16",
+  "theme_color": "#080d16",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

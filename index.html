@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#080d16">
+<meta name="description" content="AI Trade Buddy V3 - Delta Exchange India market intelligence and technical trading assistant">
+<title>AI Trade Buddy V3</title>
+<link rel="manifest" href="./manifest.json">
+<script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+:root{--bg:#080d16;--panel:#101a29;--panel2:#142135;--line:#24344b;--text:#eef4ff;--muted:#8b9bb2;--green:#20d695;--red:#ff5573;--blue:#438cff;--gold:#ffca65}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}button,input,select,textarea{font:inherit}
+header{padding:16px;background:#0b1320;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}.brand{display:flex;align-items:center;justify-content:space-between}.logo{font-size:21px;font-weight:900;letter-spacing:-.5px}.logo span{color:var(--green)}.live{font-size:10px;color:var(--green);border:1px solid #1c7558;padding:6px 9px;border-radius:20px}.sub{font-size:10px;color:var(--muted);margin-top:6px}
+nav{display:flex;gap:7px;overflow:auto;padding:10px 12px 4px;position:sticky;top:67px;background:var(--bg);z-index:9}nav button{white-space:nowrap;background:var(--panel);color:var(--muted);border:1px solid var(--line);padding:10px 12px;border-radius:10px;font-size:11px}nav button.active{background:#12352f;color:var(--green);border-color:#1d795d}
+main{padding:12px;max-width:1050px;margin:auto}.page{display:none}.page.active{display:block}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.card{background:linear-gradient(145deg,var(--panel),#0d1725);border:1px solid var(--line);border-radius:14px;padding:13px;margin-bottom:10px}.metric-label{font-size:10px;color:var(--muted)}.metric{font-size:21px;font-weight:800;margin-top:7px}.green{color:var(--green)}.red{color:var(--red)}.blue{color:var(--blue)}.gold{color:var(--gold)}.muted{color:var(--muted)}.section-title{font-size:15px;font-weight:800;margin:18px 0 10px}.row{display:flex;align-items:center;justify-content:space-between;gap:9px}.small{font-size:10px;color:var(--muted);line-height:1.5}.pill{font-size:10px;padding:5px 8px;border-radius:20px;background:#1b2a3e;color:var(--muted)}
+input,select,textarea{width:100%;background:#0b1422;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:11px;outline:none}label{display:block;font-size:10px;color:var(--muted);margin:11px 0 5px}.btn{border:0;border-radius:9px;padding:11px 13px;font-weight:700;background:var(--blue);color:white;font-size:11px}.btn.greenbtn{background:#117d5c}.btn.darkbtn{background:#1a2a40}.btn:disabled{opacity:.5}
+table{width:100%;border-collapse:collapse;font-size:11px}th,td{text-align:left;padding:10px 7px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted);font-weight:600}.tablewrap{overflow:auto}.signal{border-left:3px solid var(--green)}.signal.short{border-left-color:var(--red)}.signal.wait{border-left-color:var(--gold)}.signal h3{margin:0;font-size:16px}.statline{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #1b2a3d;font-size:11px}.statline:last-child{border:0}.progress{height:5px;background:#25344a;border-radius:10px;overflow:hidden;margin-top:7px}.progress i{display:block;height:100%;background:var(--green)}.notice{padding:10px;border-radius:9px;background:#282316;color:var(--gold);font-size:10px;line-height:1.5}.empty{text-align:center;color:var(--muted);padding:22px 8px;font-size:12px}.footer{text-align:center;padding:20px;color:var(--muted);font-size:10px}
+#chart{height:310px;width:100%;position:relative}.chart-toolbar{display:flex;gap:6px;overflow:auto;margin-bottom:9px}.chart-toolbar button{background:#1a2a40;color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:7px 10px;font-size:10px}.chart-toolbar button.active{color:var(--green);border-color:var(--green)}.chart-legend{display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin-top:8px}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tag{padding:5px 7px;border-radius:6px;background:#17263a;font-size:10px}.setup-level{font-size:18px;font-weight:800}.signal-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}#chart{height:430px}.two{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="brand"><div class="logo">AI <span>TRADE</span> BUDDY</div><div class="live" id="liveStatus">● CONNECTING</div></div><div class="sub">DELTA EXCHANGE INDIA · ADVANCED MARKET INTELLIGENCE</div></header>
+<nav>
+<button class="active" data-page="dashboard">Dashboard</button><button data-page="scanner">Market Scanner</button><button data-page="signals">Trade Setup</button><button data-page="risk">Risk Manager</button><button data-page="journal">Journal</button><button data-page="strategy">Strategy Lab</button>
+</nav>
+<main>
+<section id="dashboard" class="page active">
+ <div class="grid">
+  <div class="card"><div class="metric-label">MARKETS LOADED</div><div class="metric blue" id="marketCount">--</div></div>
+  <div class="card"><div class="metric-label">LONG SETUPS</div><div class="metric green" id="longCount">--</div></div>
+  <div class="card"><div class="metric-label">SHORT SETUPS</div><div class="metric red" id="shortCount">--</div></div>
+  <div class="card"><div class="metric-label">LAST UPDATED</div><div class="metric" style="font-size:13px" id="lastUpdate">--</div></div>
+ </div>
+ <div class="section-title">Market Overview</div><div class="card"><div class="row"><b>Delta Exchange India</b><span class="pill" id="connection">Checking API</span></div><p class="small">Public market prices · Auto refresh every 30 seconds</p><button class="btn darkbtn" onclick="loadMarkets()">↻ Refresh Market Data</button></div>
+ <div class="section-title">Top Markets</div><div class="card tablewrap"><table><thead><tr><th>Market</th><th>Price</th><th>24h Change</th></tr></thead><tbody id="topMarkets"><tr><td colspan="3">Loading markets...</td></tr></tbody></table></div>
+ <div class="section-title">Latest Technical Setups</div><div id="topSignals"><div class="empty">Market data load hone ka intezar karein...</div></div>
+ <div class="notice">Signals are technical estimates, not guaranteed predictions. Check liquidity, spread, fees and contract specifications. No order is placed by this app.</div>
+</section>
+<section id="scanner" class="page">
+ <div class="section-title">All Market Scanner</div><div class="card"><input id="searchMarket" placeholder="Search any market / symbol..." oninput="renderScanner()"><div class="row" style="margin-top:9px"><select id="sortMarket" onchange="renderScanner()"><option value="volume">Sort: Volume</option><option value="change">Sort: 24h Change</option><option value="name">Sort: Name</option></select><button class="btn darkbtn" onclick="loadMarkets()">Refresh</button></div></div>
+ <div class="card tablewrap"><table><thead><tr><th>Symbol</th><th>Last Price</th><th>24h %</th><th>Volume</th><th>Action</th></tr></thead><tbody id="scannerRows"><tr><td colspan="5">Loading...</td></tr></tbody></table></div><div class="small" id="scannerInfo"></div>
+ <div class="card"><b>Market-wide signal scan</b><p class="small">To avoid overwhelming the exchange API, the scan checks the 30 highest-volume markets first. Select any other market above and analyze it individually.</p><button class="btn greenbtn" id="scanBtn" onclick="scanUniverse()">SCAN TOP 30 MARKETS</button><div class="small" id="scanProgress"></div></div>
+</section>
+<section id="signals" class="page">
+ <div class="section-title">Professional Trade Setup</div>
+ <div class="card">
+  <div class="notice">Setup is calculated from live public candles. A LONG/SHORT is shown only when the rule checks align; otherwise the result is WAIT / NO TRADE.</div>
+  <label>Choose market</label><select id="signalSymbol"></select>
+  <label>Chart timeframe</label><select id="timeframe" onchange="analyzeSelected()"><option value="5m">5 Minutes</option><option value="15m" selected>15 Minutes</option><option value="1h">1 Hour</option><option value="4h">4 Hours</option><option value="1d">1 Day</option></select>
+  <button class="btn greenbtn" style="width:100%;margin-top:12px" onclick="analyzeSelected()">⚡ ANALYZE & BUILD TRADE SETUP</button>
+ </div>
+ <div class="card">
+  <div class="row"><b id="chartTitle">Price Chart</b><span class="pill" id="chartState">Waiting for analysis</span></div>
+  <div class="chart-toolbar"><button data-tf="5m">5m</button><button data-tf="15m" class="active">15m</button><button data-tf="1h">1H</button><button data-tf="4h">4H</button><button data-tf="1d">1D</button></div>
+  <div id="chart"><div class="empty">Analyze a market to load its candlestick chart.</div></div>
+  <div class="chart-legend"><span><i class="dot" style="background:#438cff"></i>EMA 20</span><span><i class="dot" style="background:#ffca65"></i>EMA 50</span><span><i class="dot" style="background:#b58cff"></i>EMA 200</span><span><i class="dot" style="background:#20d695"></i>Entry</span><span><i class="dot" style="background:#ff5573"></i>Stop</span></div>
+ </div>
+ <div id="selectedSignal"><div class="empty">Select a market and tap Analyze.</div></div>
+ <div class="section-title">Multi-timeframe confirmation</div><div id="mtfResults" class="card"><div class="empty">Run analysis to check 15m, 1H, 4H and 1D trend alignment.</div></div>
+ <div class="section-title">Market-wide signals</div><div id="signalList"><div class="empty">Run the market scan to find setups.</div></div>
+</section>
+<section id="risk" class="page">
+ <div class="section-title">Risk Manager & Position Calculator</div><div class="card">
+ <label>Account balance (₹)</label><input id="balance" type="number" value="10000"><label>Risk per trade (%)</label><input id="riskPercent" type="number" value="1" step=".1"><label>Entry price</label><input id="entry" type="number" placeholder="Enter entry price"><label>Stop loss price</label><input id="stop" type="number" placeholder="Enter stop loss"><label>Target price</label><input id="target" type="number" placeholder="Enter target"><button class="btn greenbtn" style="width:100%;margin-top:13px" onclick="calculateRisk()">CALCULATE POSITION</button></div><div id="riskResult" class="card"><div class="empty">Enter your trade details.</div></div>
+</section>
+<section id="journal" class="page">
+ <div class="section-title">Trade Journal</div><div class="card"><label>Market</label><input id="jSymbol" placeholder="BTCUSD"><label>Direction</label><select id="jSide"><option>LONG</option><option>SHORT</option></select><label>Entry price</label><input id="jEntry" type="number"><label>Exit price</label><input id="jExit" type="number"><label>Quantity</label><input id="jQty" type="number" value="1"><button class="btn greenbtn" style="width:100%;margin-top:13px" onclick="saveJournal()">SAVE TRADE</button></div><div class="row"><b>Saved Trades</b><button class="btn darkbtn" onclick="clearJournal()">Clear All</button></div><div id="journalRows"></div>
+</section>
+<section id="strategy" class="page">
+ <div class="section-title">Strategy Lab</div><div class="card"><p class="small">Describe a trading idea in plain English. This offline parser extracts basic rule hints; it is not a connected cloud AI model.</p><label>Your strategy idea</label><textarea id="strategyText" rows="5" placeholder="Example: Buy when RSI is below 30 and price is above EMA 200. Exit when RSI goes above 60."></textarea><button class="btn" style="width:100%;margin-top:12px" onclick="buildStrategy()">BUILD STRATEGY</button></div><div id="strategyResult" class="card"><div class="empty">Your strategy analysis will appear here.</div></div><div class="notice">A real AI strategy copilot, automated backtesting and news/order-book intelligence require a secure backend and provider/data APIs. Never paste private API keys into this HTML file.</div>
+</section>
+</main>
+<div class="footer">AI TRADE BUDDY V3 · Analysis only · No automatic order execution</div>
+<script>
+'use strict';
+const API='https://api.india.delta.exchange';
+let markets=[],signals=[],busy=false,chart=null,candleSeries=null,ema20Series=null,ema50Series=null,ema200Series=null,activeCandles=[],lastSetup=null;
+const $=id=>document.getElementById(id);
+const num=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+const fmt=v=>num(v).toLocaleString('en-IN',{maximumFractionDigits:6});
+const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function symbolOf(t){return t?.symbol||t?.product?.symbol||'UNKNOWN'}
+function lastPrice(t){return num(t?.mark_price||t?.close||t?.last_price||t?.spot_price||t?.price)}
+function volumeOf(t){return num(t?.volume||t?.turnover||t?.volume_24h||t?.turnover_24h)}
+function changeOf(t){return num(t?.change_percentage??t?.price_change_percent??t?.change_24h??t?.change_24_hour??0)}
+function setStatus(ok,msg){$('liveStatus').textContent=ok?'● LIVE DATA':'● OFFLINE';$('liveStatus').style.color=ok?'var(--green)':'var(--red)';$('connection').textContent=msg}
+async function getJSON(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();if(j.success===false)throw new Error(j.error||'API error');return j.result??j}
+async function loadMarkets(){
+ if(busy)return;busy=true;$('connection').textContent='Loading...';
+ try{
+  const [products,tickers]=await Promise.all([getJSON(API+'/v2/products'),getJSON(API+'/v2/tickers')]);
+  const pa=Array.isArray(products)?products:[],ta=Array.isArray(tickers)?tickers:[];
+  const pm=new Map(pa.map(p=>[p.symbol,p]));
+  markets=ta.map(t=>({...pm.get(symbolOf(t)),...t})).filter(t=>symbolOf(t)!=='UNKNOWN'&&lastPrice(t)>0);
+  if(!markets.length)throw new Error('No ticker data received');
+  setStatus(true,'Live public data');$('marketCount').textContent=markets.length;$('lastUpdate').textContent=new Date().toLocaleTimeString();
+  renderOverview();renderScanner();populateSymbols();$('scannerInfo').textContent='Showing '+markets.length+' markets returned by Delta public API.';$('connection').textContent='Connected';
+ }catch(e){setStatus(false,'API unavailable');$('connection').textContent=e.message;$('topMarkets').innerHTML='<tr><td colspan="3">Unable to load live data.</td></tr>';$('scannerRows').innerHTML='<tr><td colspan="5">Market data unavailable.</td></tr>';console.error(e)}
+ finally{busy=false}
+}
+function renderOverview(){const a=[...markets].sort((x,y)=>volumeOf(y)-volumeOf(x)).slice(0,8);$('topMarkets').innerHTML=a.map(t=>{const c=changeOf(t);return `<tr><td><b>${safe(symbolOf(t))}</b></td><td>${fmt(lastPrice(t))}</td><td class="${c>=0?'green':'red'}">${c.toFixed(2)}%</td></tr>`}).join('')}
+function renderScanner(){
+ const q=($('searchMarket')?.value||'').toUpperCase(),sort=$('sortMarket')?.value||'volume';let a=markets.filter(t=>symbolOf(t).toUpperCase().includes(q));
+ a.sort(sort==='change'?(x,y)=>Math.abs(changeOf(y))-Math.abs(changeOf(x)):sort==='name'?(x,y)=>symbolOf(x).localeCompare(symbolOf(y)):(x,y)=>volumeOf(y)-volumeOf(x));
+ $('scannerRows').innerHTML=a.slice(0,300).map(t=>`<tr><td><b>${safe(symbolOf(t))}</b></td><td>${fmt(lastPrice(t))}</td><td class="${changeOf(t)>=0?'green':'red'}">${changeOf(t).toFixed(2)}%</td><td>${fmt(volumeOf(t))}</td><td><button class="btn darkbtn" onclick="quickAnalyze('${safe(symbolOf(t))}')">Analyze</button></td></tr>`).join('')||'<tr><td colspan="5">No matching market.</td></tr>';
+}
+function populateSymbols(){const a=[...markets].sort((x,y)=>volumeOf(y)-volumeOf(x));$('signalSymbol').innerHTML=a.map(t=>`<option value="${safe(symbolOf(t))}">${safe(symbolOf(t))}</option>`).join('')}
+function quickAnalyze(s){$('signalSymbol').value=s;document.querySelector('[data-page="signals"]').click();analyzeSelected()}
+const RES_MIN={'5m':5,'15m':15,'1h':60,'4h':240,'1d':1440};
+async function candles(symbol,resolution){
+ const end=Math.floor(Date.now()/1000),start=end-(RES_MIN[resolution]||15)*60*230;
+ const data=await getJSON(API+'/v2/history/candles?resolution='+encodeURIComponent(resolution)+'&symbol='+encodeURIComponent(symbol)+'&start='+start+'&end='+end);
+ const arr=Array.isArray(data)?data:(Array.isArray(data?.candles)?data.candles:Array.isArray(data?.result)?data.result:[]);
+ return arr.map(x=>({time:num(x.time??x.t),open:num(x.open??x.o),high:num(x.high??x.h),low:num(x.low??x.l),close:num(x.close??x.c),volume:num(x.volume??x.v)})).filter(x=>x.time>0&&x.close>0&&x.high>0&&x.low>0).sort((a,b)=>a.time-b.time);
+}
+function ema(values,p){if(values.length<p)return null;const k=2/(p+1);let e=values.slice(0,p).reduce((a,b)=>a+b,0)/p;for(let i=p;i<values.length;i++)e=values[i]*k+e*(1-k);return e}
+function emaSeries(values,p){if(values.length<p)return [];const k=2/(p+1);let e=values.slice(0,p).reduce((a,b)=>a+b,0)/p;const out=[];for(let i=p-1;i<values.length;i++){if(i===p-1)e=values.slice(0,p).reduce((a,b)=>a+b,0)/p;else e=values[i]*k+e*(1-k);out.push({time:activeCandles[i].time,value:e})}return out}
+function rsi(values,p=14){if(values.length<=p)return null;let g=0,l=0;for(let i=1;i<=p;i++){const d=values[i]-values[i-1];if(d>0)g+=d;else l-=d}let ag=g/p,al=l/p;for(let i=p+1;i<values.length;i++){const d=values[i]-values[i-1];ag=(ag*(p-1)+Math.max(d,0))/p;al=(al*(p-1)+Math.max(-d,0))/p}return al===0?100:100-100/(1+ag/al)}
+function macd(values){const e12=ema(values,12),e26=ema(values,26);if(e12===null||e26===null)return null;return e12-e26}
+function atr(c,p=14){if(c.length<=p)return null;const tr=[];for(let i=1;i<c.length;i++)tr.push(Math.max(c[i].high-c[i].low,Math.abs(c[i].high-c[i-1].close),Math.abs(c[i].low-c[i-1].close)));return tr.slice(-p).reduce((a,b)=>a+b,0)/p}
+function analyze(c){
+ if(c.length<60)throw new Error('Not enough candle history (minimum 60 candles required).');
+ const closes=c.map(x=>x.close),price=closes[closes.length-1],r=rsi(closes),e20=ema(closes,20),e50=ema(closes,50),e200=ema(closes,200),m=macd(closes),a=atr(c);
+ const recent=c.slice(-20),high=Math.max(...recent.map(x=>x.high)),low=Math.min(...recent.map(x=>x.low));
+ const avgVol=c.slice(-21,-1).reduce((s,x)=>s+x.volume,0)/20,lastVol=c[c.length-1].volume;
+ let score=0,reasons=[];
+ if(price>e20){score++;reasons.push('Price above EMA 20')}else{score--;reasons.push('Price below EMA 20')}
+ if(e20>e50){score++;reasons.push('EMA 20 above EMA 50')}else{score--;reasons.push('EMA 20 below EMA 50')}
+ if(r>50&&r<70){score++;reasons.push('RSI bullish zone')}else if(r<50&&r>30){score--;reasons.push('RSI bearish zone')}else reasons.push('RSI at an extreme / neutral zone');
+ if(m!==null){if(m>0){score++;reasons.push('MACD momentum positive')}else{score--;reasons.push('MACD momentum negative')}}
+ if(avgVol>0&&lastVol>avgVol*1.25)reasons.push('Volume above recent average');
+ const side=score>=3?'LONG':score<=-3?'SHORT':'WAIT';
+ const entry=price,buffer=Math.max((a||price*.005)*1.25,price*.002);
+ let sl=0,tp1=0,tp2=0,tp3=0,rr=0;
+ if(side==='LONG'){sl=Math.min(low,entry-buffer);const risk=entry-sl;tp1=entry+risk;tp2=entry+risk*2;tp3=entry+risk*3;rr=(tp2-entry)/risk}
+ if(side==='SHORT'){sl=Math.max(high,entry+buffer);const risk=sl-entry;tp1=entry-risk;tp2=entry-risk*2;tp3=entry-risk*3;rr=(entry-tp2)/risk}
+ const conf=Math.min(88,Math.max(38,48+Math.abs(score)*7+(avgVol>0&&lastVol>avgVol*1.25?4:0)));
+ const recentHigh=Math.max(...c.slice(-50).map(x=>x.high)),recentLow=Math.min(...c.slice(-50).map(x=>x.low));
+ const prevHigh=Math.max(...c.slice(-21,-1).map(x=>x.high)),prevLow=Math.min(...c.slice(-21,-1).map(x=>x.low));
+ const breakout=price>prevHigh?'Bullish breakout':price<prevLow?'Bearish breakdown':'No fresh breakout';
+  
+  return {
+    symbol: c.symbol || c.product_symbol || "",
+    side, price, r,
+    e20, e50, e200,
+    m, a, score, reasons,
+    entry, sl, tp1, tp2, tp3, rr, conf,
+    breakout, recentHigh, recentLow
+  };
+}
+
+/* ---------- CHART ---------- */
+let chartData = [];
+
+function renderChart(data) {
+  chartData = Array.isArray(data) ? data : [];
+  const host = document.getElementById("priceChart") ||
+               document.getElementById("chart") ||
+               document.getElementById("chartArea");
+
+  if (!host) return;
+
+  let canvas = host.querySelector("canvas");
+  if (!canvas) {
+    host.innerHTML = "";
+    canvas = document.createElement("canvas");
+    canvas.style.width = "100%";
+    canvas.style.height = "260px";
+    host.appendChild(canvas);
+  }
+
+  const ctx = canvas.getContext("2d");
+  const width = host.clientWidth || 320;
+  const height = 260;
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, width, height);
+
+  if (!chartData.length) {
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "13px sans-serif";
+    ctx.fillText("Chart data unavailable", 15, 30);
+    return;
+  }
+
+  const values = chartData.map(x => Number(x.close));
+  const highs = chartData.map(x => Number(x.high));
+  const lows = chartData.map(x => Number(x.low));
+  const max = Math.max(...highs);
+  const min = Math.min(...lows);
+  const range = max - min || 1;
+  const pad = 15;
+  const usableH = height - 2 * pad;
+  const step = (width - 2 * pad) / chartData.length;
+  const candleW = Math.max(2, Math.min(9, step * 0.65));
+
+  ctx.strokeStyle = "rgba(148,163,184,.15)";
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 4; i++) {
+    const y = pad + usableH * i / 5;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+  }
+
+  chartData.forEach((c, i) => {
+    const x = pad + i * step + step / 2;
+    const y = v => pad + (max - Number(v)) / range * usableH;
+    const open = Number(c.open);
+    const close = Number(c.close);
+    const up = close >= open;
+
+    ctx.strokeStyle = up ? "#16c784" : "#ea3943";
+    ctx.fillStyle = up ? "#16c784" : "#ea3943";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, y(c.high));
+    ctx.lineTo(x, y(c.low));
+    ctx.stroke();
+
+    const top = Math.min(y(open), y(close));
+    const bodyH = Math.max(1.5, Math.abs(y(open) - y(close)));
+    ctx.fillRect(x - candleW / 2, top, candleW, bodyH);
+  });
+}
+
+/* ---------- SIGNAL DISPLAY ---------- */
+function signalHTML(s) {
+  if (!s) return "<div class='muted'>No signal available</div>";
+
+  const color = s.side === "LONG" ? "#16c784" :
+                s.side === "SHORT" ? "#ea3943" : "#94a3b8";
+
+  return `
+    <div style="padding:12px;border:1px solid #263449;border-radius:12px;margin:8px 0">
+      <div style="font-size:20px;font-weight:800;color:${color}">
+        ${s.side || "WAIT"}
+      </div>
+      <div>Price: ${fmt(s.price)}</div>
+      <div>RSI: ${Number(s.r).toFixed(2)}</div>
+      <div>Confidence: ${s.conf || 0}%</div>
+      <div>${s.breakout || "No breakout data"}</div>
+      <div style="margin-top:8px;color:#94a3b8">
+        ${(s.reasons || []).join(" • ")}
+      </div>
+    </div>`;
+}
+
+async function analyzeSelected() {
+  const symbol = $("signalSymbol")?.value;
+  const tf = $("timeframe")?.value || "15m";
+  if (!symbol) return;
+
+  const box = $("selectedSignal");
+  if (box) box.innerHTML = "Analyzing market...";
+
+  try {
+    const data = await candles(symbol, tf);
+    if (!data || data.length < 30) {
+      if (box) box.innerHTML = "Not enough candle data. Try another timeframe.";
+      return;
+    }
+
+    renderChart(data);
+    const result = analyze(data);
+    if (box) box.innerHTML = signalHTML(result);
+
+    const list = $("signalList");
+    if (list) {
+      list.innerHTML = `
+        <div class="signal-card">
+          <b>${symbol}</b>
+          <span>${result.side}</span>
+          <p>Entry: ${result.side === "WAIT" ? "—" : fmt(result.entry)}</p>
+          <p>Stop Loss: ${result.side === "WAIT" ? "—" : fmt(result.sl)}</p>
+          <p>TP1: ${result.side === "WAIT" ? "—" : fmt(result.tp1)}</p>
+          <p>TP2: ${result.side === "WAIT" ? "—" : fmt(result.tp2)}</p>
+          <p>TP3: ${result.side === "WAIT" ? "—" : fmt(result.tp3)}</p>
+          <p>Risk/Reward: ${result.side === "WAIT" ? "—" : result.rr}</p>
+        </div>`;
+    }
+  } catch (err) {
+    if (box) box.innerHTML = "Analysis error: " + err.message;
+  }
+}
+
+/* ---------- MARKET SCANNER ---------- */
+async function scanTop() {
+  if (busy || !markets.length) return;
+  busy = true;
+
+  const rows = [...markets]
+    .sort((a, b) => num(volumeOf(b)) - num(volumeOf(a)))
+    .slice(0, 30);
+
+  const output = [];
+  const table = $("scannerRows");
+  if (table) table.innerHTML = "<tr><td colspan='6'>Scanning markets...</td></tr>";
+
+  for (const market of rows) {
+    try {
+      const symbol = symbolOf(market);
+      const data = await candles(symbol, "15m");
+      if (data && data.length >= 30) {
+        const s = analyze(data);
+        output.push({ symbol, ...s });
+      }
+    } catch (e) {
+      // Skip markets with unavailable candle data.
+    }
+  }
+
+  signals = output;
+  const longs = output.filter(x => x.side === "LONG");
+  const shorts = output.filter(x => x.side === "SHORT");
+
+  if ($("longCount")) $("longCount").textContent = longs.length;
+  if ($("shortCount")) $("shortCount").textContent = shorts.length;
+  if ($("scannerInfo")) $("scannerInfo").textContent =
+    `Scanned ${output.length} of ${rows.length} markets`;
+
+  if (table) {
+    table.innerHTML = output.map(s => `
+      <tr>
+        <td>${s.symbol}</td>
+        <td>${fmt(s.price)}</td>
+        <td style="color:${s.side === "LONG" ? "#16c784" : s.side === "SHORT" ? "#ea3943" : "#94a3b8"}">${s.side}</td>
+        <td>${s.conf}%</td>
+        <td>${s.breakout}</td>
+        <td><button onclick="document.getElementById('signalSymbol').value='${s.symbol}';analyzeSelected()">Analyze</button></td>
+      </tr>`).join("") || "<tr><td colspan='6'>No scan results</td></tr>";
+  }
+
+  busy = false;
+}
+
+/* ---------- RISK CALCULATOR ---------- */
+function calculateRisk() {
+  const balance = num($("balance")?.value);
+  const riskPct = num($("riskPercent")?.value);
+  const entry = num($("entry")?.value);
+  const stop = num($("stop")?.value);
+  const target = num($("target")?.value);
+  const box = $("riskResult");
+
+  if (!balance || !riskPct || !entry || !stop || !target ||
+      entry === stop || entry === target) {
+    if (box) box.textContent = "Enter valid balance, risk %, entry, stop and target.";
+    return;
+  }
+
+  const riskAmount = balance * riskPct / 100;
+  const distance = Math.abs(entry - stop);
+  const quantity = riskAmount / distance;
+  const reward = Math.abs(target - entry);
+  const rr = reward / distance;
+
+  if (box) box.innerHTML = `
+    <b>Risk amount:</b> ${fmt(riskAmount)}<br>
+    <b>Position quantity:</b> ${quantity.toFixed(6)}<br>
+    <b>Potential reward:</b> ${fmt(quantity * reward)}<br>
+    <b>Risk/Reward:</b> 1 : ${rr.toFixed(2)}
+  `;
+}
+
+/* ---------- TRADE JOURNAL ---------- */
+function getJournal() {
+  try {
+    return JSON.parse(localStorage.getItem("atb_journal") || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveJournal() {
+  const symbol = $("jSymbol")?.value;
+  const side = $("jSide")?.value;
+  const entry = num($("jEntry")?.value);
+  const exit = num($("jExit")?.value);
+  const qty = num($("jQty")?.value);
+
+  if (!symbol || !entry || !exit || !qty) {
+    alert("Please enter symbol, entry, exit and quantity.");
+    return;
+  }
+
+  const pnl = (side === "SHORT" ? entry - exit : exit - entry) * qty;
+  const rows = getJournal();
+
+  rows.unshift({
+    symbol, side, entry, exit, qty, pnl,
+    date: new Date().toLocaleString()
+  });
+
+  localStorage.setItem("atb_journal", JSON.stringify(rows));
+  renderJournal();
+}
+
+function renderJournal() {
+  const body = $("journalRows");
+  if (!body) return;
+
+  const rows = getJournal();
+  body.innerHTML = rows.map(x => `
+    <tr>
+      <td>${x.date}</td>
+      <td>${x.symbol}</td>
+      <td>${x.side}</td>
+      <td>${fmt(x.entry)}</td>
+      <td>${fmt(x.exit)}</td>
+      <td>${x.qty}</td>
+      <td style="color:${x.pnl >= 0 ? "#16c784" : "#ea3943"}">${fmt(x.pnl)}</td>
+    </tr>`).join("") || "<tr><td colspan='7'>No trades saved yet</td></tr>";
+}
+
+function clearJournal() {
+  if (!confirm("Delete all journal records?")) return;
+  localStorage.removeItem("atb_journal");
+  renderJournal();
+}
+
+/* ---------- SIMPLE STRATEGY BUILDER ---------- */
+function buildStrategy() {
+  const input = ($("strategyText")?.value || "").toLowerCase();
+  const output = $("strategyResult");
+  if (!output) return;
+
+  let rules = [];
+
+  if (input.includes("rsi") && input.includes("30")) {
+    rules.push("RSI below 30: possible oversold condition.");
+  }
+  if (input.includes("rsi") && input.includes("70")) {
+    rules.push("RSI above 70: possible overbought condition.");
+  }
+  if (input.includes("ema")) {
+    rules.push("EMA trend: compare EMA 20, EMA 50 and EMA 200.");
+  }
+  if (input.includes("volume")) {
+    rules.push("Volume confirmation: compare current volume with average volume.");
+  }
+  if (input.includes("breakout")) {
+    rules.push("Breakout: wait for candle close above recent resistance.");
+  }
+  if (input.includes("stop")) {
+    rules.push("Always define a stop loss before considering an entry.");
+  }
+
+  output.innerHTML = rules.length
+    ? rules.map(x => `<p>• ${x}</p>`).join("")
+    : "Try a strategy such as: RSI below 30 with EMA trend and volume confirmation.";
+
+  output.innerHTML += "<p><b>Note:</b> This is a rule-based helper, not a real AI model or guaranteed trading signal.</p>";
+}
+
+/* ---------- BUTTONS & STARTUP ---------- */
+document.querySelectorAll("[data-page]").forEach(button => {
+  button.addEventListener("click", () => {
+    const page = button.getAttribute("data-page");
+    document.querySelectorAll(".page").forEach(p => p.style.display = "none");
+    const target = document.getElementById(page);
+    if (target) target.style.display = "block";
+  });
+});
+
+$("searchMarket")?.addEventListener("input", renderScanner);
+$("sortMarket")?.addEventListener("change", renderScanner);
+$("signalSymbol")?.addEventListener("change", analyzeSelected);
+$("timeframe")?.addEventListener("change", analyzeSelected);
+
+window.addEventListener("resize", () => {
+  if (chartData.length) renderChart(chartData);
+});
+
+renderJournal();
+loadMarkets();
+
+setInterval(() => {
+  if (!busy) loadMarkets();
+}, 30000);
+
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
